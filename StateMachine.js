@@ -50,9 +50,10 @@
 				if (trigger.indexOf("/") >= 0) { //this is event-based
 					var picked = trigger.split("/");
 					var element = document.querySelectorAll(picked.shift())[0];
-					if (! element) throw "Invalid selector."
-					for (var j = 0; j < picked.length; j++) {
-						this.bindEvent(element, picked[i], ons[i].event);
+					if (element) {
+						for (var j = 0; j < picked.length; j++) {
+							this.bindEvent(element, picked[i], ons[i].event);
+						}
 					}
 				}
 			}
