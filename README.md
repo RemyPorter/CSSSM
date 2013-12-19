@@ -46,8 +46,12 @@ The "event" field *may* be any string. If the "event" field is a CSS selector, y
 * <code>window.CState.Machines[machineName].transition("eventTrigger");
 
 ## Styling a Machine
+Use CSS selectors based on the data- attribute. For a machine named "demo", you can style elements using <code>[data-demo]</code> in your selectors.
+<pre><code>
+	div.menu[data-demo="open"] { display: inline-block; }
+	div.menu[data-demo="closed"] { display: none; }
+</code></pre>
 
-
-======
+* * *
 
 Inspired by this [article](http://toddmotto.com/stop-toggling-classes-with-js-use-behaviour-driven-dom-manipulation-with-data-states/).
