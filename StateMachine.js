@@ -13,7 +13,12 @@
 		this.transition = function(transitionKey) {
 			var transition = getTransition(this.currentState, transitionKey);
 			if (!transition) throw "Invalid transition for this state.";
-			
+			for (var i = 0; i < graph.states.length; i++) {
+				if (graph.states[i].state == transition.to) {
+					this.currentState = graph.states[i];
+					return this.currentState;
+				}
+			}
 		}
 	}
 
@@ -45,4 +50,5 @@
 			delete this.Machines[name];
 		}
 	}
+	window.Machines = new Machines();
 })();
