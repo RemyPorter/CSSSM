@@ -1,0 +1,31 @@
+<html>
+<head>
+	<title>Test</title>
+	<script type="text/javascript" src="StateMachine.js"></script>
+	<style type="text/css">
+		div[data-test="open"] { display: block; }
+		div[data-test="closed"] { display: none; }
+	</style>
+</head>
+<body>
+	<div id="TestDiv">
+		This is some content.
+	</div>
+	<button id="toggle">
+		toggle
+	</button>
+</body>
+<script type="text/javascript">
+	CState.add({name: "Test", 
+		elements: "#TestDiv",
+		states: [
+			{state: "open", on: [{event:"toggle", to: "closed"}]},
+			{state: "closed", on: [{event:"toggle", to: "open"}]}
+		]
+	});
+	var toggle = document.getElementById("toggle");
+	toggle.addEventListener("click", function() {
+		CState.Machines["Test"].transition("toggle");
+	});
+</script>
+</html>	

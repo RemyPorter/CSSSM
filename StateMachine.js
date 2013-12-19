@@ -19,6 +19,7 @@
 					return this.currentState;
 				}
 			}
+			throw new "No valid state to transition to for this key."
 		}
 	}
 
@@ -27,17 +28,36 @@
 			for (var i = 0; i < elementSelectors.length; i++) {
 				var elems = document.querySelectorAll(elementSelectors[i]);
 				for (var j = 0; j < elems.length; j++) {
-					elems[j].setAttribute("[data-" + machineName + "]", newState);
+					elems[j].setAttribute("data-" + machineName, newState);
 				}
 			}
 		}
 		this.registerEvent = function(event, element) {
-
+			//eventually, I'll use this to tie transition keys to DOM events.
+		}
+		this.unregisterEvent = function(event, element) {
+			//and a ditto
 		}
 	}
+
+	var getElementSelectors = function(machine) {
+		var selectors = [];
+		for (var i = 0; i < machine.states.length; i++) {
+			for (j = 0; j < machine.states[i].on.length; j++) {
+				selectors.push(machine.states[i].on[j].event);
+			}
+		}
+		return selectors.concat(machine.elements);
+	}
+
 	var StateMachine = function(machine) {
 		this.Machine = new Machine(machine);
-		this.Document = new DocumentManager(machine.Name, getElementSelectors(machine));
+		this.Document = new DocumentManager(machine.name, getElementSelectors(machine));
+
+		this.transition = function(transitionKey) {
+			var next = this.Machine.transition(transitionKey);
+			this.Document.setState(next.state);
+		}
 	};
 	var Machines = function() {
 		this.Machines = [];
@@ -50,5 +70,5 @@
 			delete this.Machines[name];
 		}
 	}
-	window.Machines = new Machines();
+	window.CState = new Machines();
 })();
