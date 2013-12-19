@@ -5,6 +5,8 @@ CSSSM
 
 The purpose of this code is to allow web designers to define a declarative state machine for UI behaviors. This is currently "proof-of-concept" status. A simple declarative style allows for the linking of UI elements to states and events. This makes it easy to build *behavior* into web interfaces without writing code.
 
+**NB**: this is POC code that I knocked out while I was bored in a meeting. It is not performant, and not well tested.
+
 ## Key Features
 
 * Declarative definition of behavior
