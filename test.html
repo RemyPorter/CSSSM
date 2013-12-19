@@ -19,13 +19,13 @@
 	CState.add({name: "Test", 
 		elements: "#TestDiv",
 		states: [
-			{state: "open", on: [{event:"toggle", to: "closed"}]},
-			{state: "closed", on: [{event:"toggle", to: "open"}]}
+			{state: "open", on: [{event:"#toggle/click", to: "closed"}]},
+			{state: "closed", on: [{event:"#toggle/click", to: "open"}]}
 		]
 	});
 	var toggle = document.getElementById("toggle");
-	toggle.addEventListener("click", function() {
+	/*toggle.addEventListener("click", function() {
 		CState.Machines["Test"].transition("toggle");
-	});
+	});*/
 </script>
 </html>	

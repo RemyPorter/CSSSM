@@ -1,4 +1,8 @@
 (function() {
+	//get rid of them slashes
+	var sanitizeSelector = function(selector) {
+		return selector.split("/")[0];
+	}
 	var Machine = function(graph) {
 		this.currentState = graph.states[0];
 		
@@ -24,19 +28,43 @@
 	}
 
 	var DocumentManager = function(machineName, elementSelectors) {
-		this.setState = function(newState) {
-			for (var i = 0; i < elementSelectors.length; i++) {
-				var elems = document.querySelectorAll(elementSelectors[i]);
-				for (var j = 0; j < elems.length; j++) {
-					elems[j].setAttribute("data-" + machineName, newState);
+		this.boundEvents = [];
+		this.bindEvents = function(state) {
+			var ons = state.on;
+			for (var i = 0; i < ons.length; i++) {
+				var trigger = ons[i].event;
+				if (trigger.indexOf("/") >= 0) { //this is event-based
+					var picked = trigger.split("/");
+					var element = document.querySelectorAll(picked[0])[0];
+					if (! element) throw "Invalid selector."
+					this.bindEvent(element, picked[1], ons[i].event);
 				}
 			}
 		}
-		this.registerEvent = function(event, element) {
-			//eventually, I'll use this to tie transition keys to DOM events.
+		this.bindEvent = function(element,event, nextState) {
+			var bound = {
+				element:element, event:event, handler: function() {
+					CState.Machines[machineName].transition(nextState);
+				}
+			}
+			element.addEventListener(event, bound.handler);
+			this.boundEvents.push(bound);
 		}
-		this.unregisterEvent = function(event, element) {
-			//and a ditto
+		this.unbindEvents = function() {
+			var ev;
+			while(ev = this.boundEvents.shift()) {
+				ev.element.removeEventListener(ev.event, ev.handler);
+			}
+		}
+		this.setState = function(newState) {
+			this.unbindEvents();
+			for (var i = 0; i < elementSelectors.length; i++) {
+				var elems = document.querySelectorAll(sanitizeSelector(elementSelectors[i]));
+				for (var j = 0; j < elems.length; j++) {
+					elems[j].setAttribute("data-" + machineName, newState.state);
+				}
+			}
+			this.bindEvents(newState);
 		}
 	}
 
@@ -44,7 +72,7 @@
 		var selectors = [];
 		for (var i = 0; i < machine.states.length; i++) {
 			for (j = 0; j < machine.states[i].on.length; j++) {
-				selectors.push(machine.states[i].on[j].event);
+				selectors.push(sanitizeSelector(machine.states[i].on[j].event));
 			}
 		}
 		return selectors.concat(machine.elements);
@@ -53,10 +81,11 @@
 	var StateMachine = function(machine) {
 		this.Machine = new Machine(machine);
 		this.Document = new DocumentManager(machine.name, getElementSelectors(machine));
+		this.Document.bindEvents(this.Machine.currentState);
 
 		this.transition = function(transitionKey) {
 			var next = this.Machine.transition(transitionKey);
-			this.Document.setState(next.state);
+			this.Document.setState(next);
 		}
 	};
 	var Machines = function() {
