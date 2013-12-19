@@ -2,8 +2,18 @@
 	var Machine = function(graph) {
 		this.currentState = graph.states[0];
 		
-		this.transition = function(transitionKey) {
+		function getTransition(state, key) {
+			for (var i = 0; i < state.on.length; i++) {
+				if (state.on[i].event == key) {
+					return state.on[i];
+				}
+			}
+		}
 
+		this.transition = function(transitionKey) {
+			var transition = getTransition(this.currentState, transitionKey);
+			if (!transition) throw "Invalid transition for this state.";
+			
 		}
 	}
 
@@ -27,7 +37,12 @@
 	var Machines = function() {
 		this.Machines = [];
 		this.add = function(machine) {
-			this.Machines.push(new StateMachine(machine));
+			if (this.Machines[machine.name]) throw "Machine with this name already exists."
+			this.Machines[machine.name] = new StateMachine(machine);
+		}
+		this.remove = function(name) {
+			this.Machines[name].unregister();
+			delete this.Machines[name];
 		}
 	}
 })();
