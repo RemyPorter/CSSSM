@@ -1,9 +1,19 @@
 (function() {
 	var Machine = function(graph) {
-		//todo: parse graph
-		this.currentState = {}; //this will be initialized to the inital state
+		this.currentState = graph[0];
+		this.stateMap = [];
+		//key off of the state object for quick access between states
+		for (var i = 0; i < graph.length; i++) {
+			this.stateMap[graph[i].state] = [];
+			for (var j = 0; j < graph[i].on.length; j++) {
+				for (var k = 0; k < graph.length; k++) {
+					if (graph[k].state == graph[i].on.goto) 
+						this.stateMap[graph[i].state].push(graph[k]);
+				}
+			}
+		}
 		this.transition = function(transitionKey) {
-			//look at the current state and transition if the key exists, throw an exception otherwise.
+			
 		}
 	}
 
@@ -17,7 +27,7 @@
 			}
 		}
 		this.registerEvent = function(event, element) {
-			
+
 		}
 	}
 	var StateMachine = function(machine) {
