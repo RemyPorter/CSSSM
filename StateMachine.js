@@ -60,14 +60,18 @@
 				return keys.indexOf(event.keyCode + "") >= 0;
 			}
 		}
-		var clickRule = function(eventTag) {
-			
+		var mouseRule = function(eventTag) {
+			var buttons = getParameters(eventTag);
+			if (buttons === null) return function() { return true; }
+			return function(event) {
+				return buttons.indexOf(event.buttons + "") >= 0;
+			}
 		}
 		var ruleForEvent = function(eventTag) {
 			if (eventTag.indexOf("keypress") >= 0) {
 				keypressRule(eventTag);
-			} else if (eventTag.indexOf("click")) {
-				return clickRule(eventTag);
+			} else if (eventTag.indexOf("mousedown") >= 0 || eventTag.indexOf("mouseup") >= 0) {
+				return mouseRule(eventTag);
 			}
 			return function() { return true; }
 		}

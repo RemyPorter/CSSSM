@@ -55,7 +55,12 @@ Use CSS selectors based on the data- attribute. For a machine named "demo", you 
 </code></pre>
 
 ## Events
-At this time, event interactions are fairly simple. Simply name the event, and if the event *happens*, the associated transition *also* happens. In the case of the keypress event, you can also supply a list, like so: <code>keypress(97,109)</code> to have the event only fire in the case of *those specific keys*.
+At this time, event interactions are fairly simple. Simply name the event, and if the event *happens*, the associated transition *also* happens. Some events, like keypress or mousedown support filters.
+
+* <code>keypress(97)</code> - only fires on the press of the letter "a"
+* <code>mousedown(1)</code> - only fires on the press of the secondary mouse button (as per the event.buttons property).
+
+At this time, modifier keys are not supported.
 
 * * *
 
