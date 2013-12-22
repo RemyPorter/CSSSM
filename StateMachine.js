@@ -47,6 +47,7 @@
 	var DocumentManager = function(machineName, root, elementSelectors) {
 		var ruleForEvent = function(eventTag) {
 			if (eventTag.indexOf("keypress") >= 0) {
+				if (eventTag.indexOf("(")) < 0) return function() { return true; } //fire an ALL key presses
 				var startAt = eventTag.indexOf("(") + 1;
 				var stopAt = eventTag.indexOf(")");
 				var keys = eventTag.substring(startAt, stopAt).split(",");	
