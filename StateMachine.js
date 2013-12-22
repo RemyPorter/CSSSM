@@ -44,7 +44,7 @@
 
 	//This object worries about interacting with the DOM.
 	//Handles setting the data-* attr, and binding events.
-	var DocumentManager = function(machineName, elementSelectors) {
+	var DocumentManager = function(machineName, root, elementSelectors) {
 		var ruleForEvent = function(eventTag) {
 			if (eventTag.indexOf("keypress") >= 0) {
 				var startAt = eventTag.indexOf("(") + 1;
@@ -63,7 +63,7 @@
 				var trigger = ons[i].event;
 				if (trigger.indexOf("/") >= 0) { //this is event-based
 					var picked = trigger.split("/");
-					var element = document.querySelectorAll(picked.shift())[0];
+					var element = root.querySelector(picked.shift());
 					if (element) {
 						for (var j = 0; j < picked.length; j++) {
 							var actual = picked[j].split("(")[0]; //this handles keybased events
@@ -92,7 +92,7 @@
 		this.setState = function(newState) {
 			this.unbindEvents();
 			for (var i = 0; i < elementSelectors.length; i++) {
-				var elems = document.querySelectorAll(elementSelector(elementSelectors[i]));
+				var elems = root.querySelectorAll(elementSelector(elementSelectors[i]));
 				for (var j = 0; j < elems.length; j++) {
 					elems[j].setAttribute("data-" + machineName, newState.state);
 				}
@@ -101,9 +101,15 @@
 		}
 	}
 	//Facade that sits atop the Machine & DocManager
-	var StateMachine = function(machine) {
+	var StateMachine = function(rootElement, machine) {
+		var root = null;
+		if (typeof(rootElement) == "string") {
+			root = document.querySelector(rootElement);
+		} else {
+			root = rootElement;
+		}
 		this.Machine = new Machine(machine);
-		this.Document = new DocumentManager(machine.name, getElementSelectors(machine));
+		this.Document = new DocumentManager(machine.name, root, getElementSelectors(machine));
 		this.Document.bindEvents(this.Machine.currentState);
 
 		this.transition = function(transitionKey) {
@@ -114,9 +120,9 @@
 	//Wrapper to govern machines.
 	var Machines = function() {
 		this.Machines = [];
-		this.add = function(machine) {
+		this.add = function(rootElement, machine) {
 			if (this.Machines[machine.name]) throw "Machine with this name already exists."
-			this.Machines[machine.name] = new StateMachine(machine);
+			this.Machines[machine.name] = new StateMachine(rootElement, machine);
 		}
 		this.remove = function(name) {
 			this.Machines[name].unregister();
