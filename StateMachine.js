@@ -45,15 +45,29 @@
 	//This object worries about interacting with the DOM.
 	//Handles setting the data-* attr, and binding events.
 	var DocumentManager = function(machineName, root, elementSelectors) {
+		var getParameters = function(text) {
+			var startAt = text.indexOf("(") + 1;
+			var stopAt = text.indexOf(")");
+
+			var res = text.substring(startAt, stopAt).split(",");
+			if (res[0] == "" && res.length = 1) return null;
+			return res;
+		}
+		var keypressRule = function(eventTag) {
+			var keys = getParameters(eventTag);	
+			if (keys === null) return function() { return true; } //if they didn't supply params, every key works
+			return function(event) {
+				return keys.indexOf(event.keyCode + "") >= 0;
+			}
+		}
+		var clickRule = function(eventTag) {
+			
+		}
 		var ruleForEvent = function(eventTag) {
 			if (eventTag.indexOf("keypress") >= 0) {
-				if (eventTag.indexOf("(")) < 0) return function() { return true; } //fire an ALL key presses
-				var startAt = eventTag.indexOf("(") + 1;
-				var stopAt = eventTag.indexOf(")");
-				var keys = eventTag.substring(startAt, stopAt).split(",");	
-				return function(event) {
-					return keys.indexOf(event.keyCode + "") >= 0;
-				}
+				keypressRule(eventTag);
+			} else if (eventTag.indexOf("click")) {
+				return clickRule(eventTag);
 			}
 			return function() { return true; }
 		}
