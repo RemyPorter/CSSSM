@@ -43,7 +43,7 @@ The "event" field *may* be any string. If the "event" field is a CSS selector, y
 
 ## Managing a Machine
 
-* <code>window.CState.add(machineGraph);</code> - the first state in the states array is the initial state of the machine.
+* <code>window.CState.add(rootElement, machineGraph);</code> - the first state in the states array is the initial state of the machine. The rootElement is the container for all other elements in this state machine.
 * <code>window.CState.remove(machineName);</code>
 * <code>window.CState.Machines[machineName].transition("eventTrigger");
 
@@ -53,6 +53,9 @@ Use CSS selectors based on the data- attribute. For a machine named "demo", you 
 	div.menu[data-demo="open"] { display: inline-block; }
 	div.menu[data-demo="closed"] { display: none; }
 </code></pre>
+
+## Events
+At this time, event interactions are fairly simple. Simply name the event, and if the event *happens*, the associated transition *also* happens. In the case of the keypress event, you can also supply a list, like so: <code>keypress(97,109)</code> to have the event only fire in the case of *those specific keys*.
 
 * * *
 
