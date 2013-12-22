@@ -16,26 +16,29 @@
 
 	//A simple state machine. Follows states by transition.
 	var Machine = function(graph) {
+		//parse out the state map into a lookup table
+		this.stateMap = {};
+		for (var i = 0; i < graph.states.length; i++) { //build the root table first
+			this.stateMap[graph.states[i].state] = graph.states[i];
+		}
+		for (var i = 0; i < graph.states.length; i++) { //now, for each root node, build a look up table for each transition
+			var ons = this.stateMap[graph.states[i].state].on;
+			this.stateMap[graph.states[i].state].lookup = {};
+			for (var j = 0; j < ons.length; j++) {
+				this.stateMap[graph.states[i].state].lookup[ons[j].event] = this.stateMap[ons[j].to];
+			}
+		}
 		this.currentState = graph.states[0]; //default to the first
 		
 		function getTransition(state, key) {
-			for (var i = 0; i < state.on.length; i++) {
-				if (state.on[i].event == key) {
-					return state.on[i];
-				}
-			}
+			return state.lookup[key];
 		}
 
 		this.transition = function(transitionKey) {
 			var transition = getTransition(this.currentState, transitionKey);
 			if (!transition) throw "Invalid transition for this state.";
-			for (var i = 0; i < graph.states.length; i++) {
-				if (graph.states[i].state == transition.to) {
-					this.currentState = graph.states[i];
-					return this.currentState;
-				}
-			}
-			throw new "No valid state to transition to for this key."
+			this.currentState = transition;
+			return this.currentState;
 		}
 	}
 
