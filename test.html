@@ -14,13 +14,18 @@
 	<button id="toggle">
 		toggle
 	</button>
+	<input type="text" id="togtxt" />
 </body>
 <script type="text/javascript">
 	CState.add({name: "Test", 
 		elements: "#TestDiv",
 		states: [
-			{state: "open", on: [{event:"#toggle/click", to: "closed"}]},
-			{state: "closed", on: [{event:"#toggle/click", to: "open"}]}
+			{state: "open", on: [
+				{event:"#toggle/click", to: "closed"}, 
+				{event:"#togtxt/keypress(97,109)", to: "closed"}]},
+			{state: "closed", on: [
+				{event:"#toggle/click", to: "open"},
+				{event:"#togtxt/keypress(97,109)", to:"open"}]}
 		]
 	});
 	var toggle = document.getElementById("toggle");

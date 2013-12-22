@@ -42,6 +42,17 @@
 	//This object worries about interacting with the DOM.
 	//Handles setting the data-* attr, and binding events.
 	var DocumentManager = function(machineName, elementSelectors) {
+		var ruleForEvent = function(eventTag) {
+			if (eventTag.indexOf("keypress") >= 0) {
+				var startAt = eventTag.indexOf("(") + 1;
+				var stopAt = eventTag.indexOf(")");
+				var keys = eventTag.substring(startAt, stopAt).split(",");	
+				return function(event) {
+					return keys.indexOf(event.keyCode + "") >= 0;
+				}
+			}
+			return function() { return true; }
+		}
 		this.boundEvents = [];
 		this.bindEvents = function(state) {
 			var ons = state.on;
@@ -52,16 +63,18 @@
 					var element = document.querySelectorAll(picked.shift())[0];
 					if (element) {
 						for (var j = 0; j < picked.length; j++) {
-							this.bindEvent(element, picked[i], ons[i].event);
+							var actual = picked[j].split("(")[0]; //this handles keybased events
+							this.bindEvent(element, actual, ons[i].event, ruleForEvent(picked[j]));
 						}
 					}
 				}
 			}
 		}
-		this.bindEvent = function(element,event, nextState) {
+		this.bindEvent = function(element,event, nextState, rule) {
 			var bound = {
-				element:element, event:event, handler: function() {
-					CState.Machines[machineName].transition(nextState);
+				element:element, event:event, handler: function(evt) {
+					if (rule(evt))
+						CState.Machines[machineName].transition(nextState);
 				}
 			}
 			element.addEventListener(event, bound.handler);
