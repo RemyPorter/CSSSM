@@ -6,11 +6,11 @@
 	//given a machine, find all of the elements it should manage.
 	var getElementSelectors = function(machine) {
 		var selectors = [];
-		for (var i = 0; i < machine.states.length; i++) {
-			for (j = 0; j < machine.states[i].on.length; j++) {
-				selectors.push(elementSelector(machine.states[i].on[j].event));
-			}
-		}
+		machine.states.forEach(function(state) {
+			state.on.forEach(function(evt) {
+				selectors.push(elementSelector(evt.event));
+			});
+		});
 		return selectors.concat(machine.elements);
 	}
 
@@ -18,16 +18,17 @@
 	var Machine = function(graph) {
 		//parse out the state map into a lookup table
 		this.stateMap = {};
-		for (var i = 0; i < graph.states.length; i++) { //build the root table first
-			this.stateMap[graph.states[i].state] = graph.states[i];
-		}
-		for (var i = 0; i < graph.states.length; i++) { //now, for each root node, build a look up table for each transition
-			var ons = this.stateMap[graph.states[i].state].on;
-			this.stateMap[graph.states[i].state].lookup = {};
-			for (var j = 0; j < ons.length; j++) {
-				this.stateMap[graph.states[i].state].lookup[ons[j].event] = this.stateMap[ons[j].to];
-			}
-		}
+		var self = this;
+		graph.states.forEach(function(state) {
+			self.stateMap[state.state] = state;
+		});
+		graph.states.forEach(function(state) {
+			var ons = self.stateMap[state.state].on;
+			self.stateMap[state.state].lookup = {};
+			ons.forEach(function(on) {
+				self.stateMap[state.state].lookup[on.event] = self.stateMap[on.to];
+			});
+		});
 		this.currentState = graph.states[0]; //default to the first
 		
 		function getTransition(state, key) {
@@ -50,7 +51,7 @@
 			var stopAt = text.indexOf(")");
 
 			var res = text.substring(startAt, stopAt).split(",");
-			if (res[0] == "" && res.length = 1) return null;
+			if (res[0] == "" && res.length == 1) return null;
 			return res;
 		}
 		var keypressRule = function(eventTag) {
@@ -62,6 +63,8 @@
 		}
 		var mouseRule = function(eventTag) {
 			var buttons = getParameters(eventTag);
+			var mapped = [];
+
 			if (buttons === null) return function() { return true; }
 			return function(event) {
 				return buttons.indexOf(event.buttons + "") >= 0;
@@ -78,19 +81,20 @@
 		this.boundEvents = [];
 		this.bindEvents = function(state) {
 			var ons = state.on;
-			for (var i = 0; i < ons.length; i++) {
-				var trigger = ons[i].event;
+			var self = this;
+			ons.forEach(function(on) {
+				var trigger = on.event;
 				if (trigger.indexOf("/") >= 0) { //this is event-based
 					var picked = trigger.split("/");
 					var element = root.querySelector(picked.shift());
 					if (element) {
-						for (var j = 0; j < picked.length; j++) {
-							var actual = picked[j].split("(")[0]; //this handles keybased events
-							this.bindEvent(element, actual, ons[i].event, ruleForEvent(picked[j]));
-						}
+						picked.forEach(function(p) {
+							var actual = p.split("(")[0]; //this handles keybased events
+							self.bindEvent(element, actual, on.event, ruleForEvent(p));
+						});
 					}
 				}
-			}
+			});
 		}
 		this.bindEvent = function(element,event, nextState, rule) {
 			var bound = {
@@ -110,12 +114,12 @@
 		}
 		this.setState = function(newState) {
 			this.unbindEvents();
-			for (var i = 0; i < elementSelectors.length; i++) {
-				var elems = root.querySelectorAll(elementSelector(elementSelectors[i]));
+			elementSelectors.forEach(function(es) {
+				var elems = root.querySelectorAll(elementSelector(es));
 				for (var j = 0; j < elems.length; j++) {
 					elems[j].setAttribute("data-" + machineName, newState.state);
 				}
-			}
+			});
 			this.bindEvents(newState);
 		}
 	}
